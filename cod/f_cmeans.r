@@ -198,6 +198,7 @@ fcm_ga <- function(X, k, m = 2, pop_size = 50, max_iter = 100, tol = 1e-5, setps
     
     # Cruzar la poblacion
     population <- cruce_population(X, population, probabilities, k, m, best_population)
+    #population <- mutacion_population(X, population, k, m, best_population)
   }
   
   return(best_solution)
