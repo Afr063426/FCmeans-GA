@@ -1,0 +1,60 @@
+---
+title: "Untitled"
+format: html
+---
+
+```{r}
+library(tidyverse)
+source("./cod/f_cmeans.r")
+source("./cod/simulacion.clasificacion.r")
+library(fclust)
+```
+
+
+
+# Prueba Iris
+```{r}
+#Se procede a probar el algoritmo 
+iris_numerica <- iris[,1:4]
+
+prueba <- fcm_ga(X = as.matrix(iris_numerica), k = 3, m = 2, pop_size = 10, max_iter = 10, setps = 5)
+
+```
+
+# Prueba tabla Bezdeck
+```{r}
+df_bezdeck <- data.frame(x = c(0, 0, 1, 2, 3, 2, 2, 1, 5, 6, 7, 5, 7, 6, 6, 8), y = c(4, 3, 5, 4, 3, 2, 1, 0, 5, 5, 6, 3, 3, 2, 1, 1))
+
+
+prueba_2 <- fcm_ga(X = as.matrix(df_bezdeck), k = 2, m = 2, pop_size = 10, max_iter = 10, setps = 5)
+Fclust(df_bezdeck, k = 2)
+```
+
+# Simulación de tabla
+```{r}
+df.1 <- generacion.tabla.binaria(n = 200, p = 2, k = 4, seeds = c(1, 2, 3, 4), centros = list(centros_1 = c(0, 1), centros_1 = c(0, 2), centros_1 = c(0, 3), centros_1 = c(0, 4)))
+write.csv(file = "./data/difuso.csv", df.1$tabla.binaria)
+df.1$tabla.binaria %>%
+    mutate(cluster = as.character(cluster)) %>%
+    ggplot(aes(x = V1, y = V2, color = cluster)) +
+    geom_point()
+```
+
+```{r}
+cluster_1 <- fcm_ga(X = as.matrix(df.1$tabla.binaria %>% dplyr::select(-cluster) ), k = 4, m = 2, pop_size = 100, max_iter = 100, setps = 10)
+save(file = "./res/cluster_1.RData", cluster_1)
+```
+
+
+```{r}
+df.2 <- generacion.tabla.binaria(n = 200, p = 2, k = 4, seeds = c(1, 2, 3, 4), centros = list(centros_1 = c(10, 10), centros_1 = c(0, 0), centros_1 = c(0, 10), centros_1 = c(10, 0)))
+df.2$tabla.binaria %>%
+    mutate(cluster = as.character(cluster)) %>%
+    ggplot(aes(x = V1, y = V2, color = cluster)) +
+    geom_point()
+```
+
+
+```{r}
+
+````
