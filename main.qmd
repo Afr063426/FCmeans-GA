@@ -17,7 +17,7 @@ library(fclust)
 #Se procede a probar el algoritmo 
 iris_numerica <- iris[,1:4]
 
-prueba <- fcm_ga(X = as.matrix(iris_numerica), k = 3, m = 2, pop_size = 10, max_iter = 10, setps = 5)
+prueba <- fcm_ga(X = as.matrix(iris_numerica), k = 3, m = 2, pop_size = 10, max_iter = 20, setps = 10)
 
 ```
 
@@ -26,7 +26,7 @@ prueba <- fcm_ga(X = as.matrix(iris_numerica), k = 3, m = 2, pop_size = 10, max_
 df_bezdeck <- data.frame(x = c(0, 0, 1, 2, 3, 2, 2, 1, 5, 6, 7, 5, 7, 6, 6, 8), y = c(4, 3, 5, 4, 3, 2, 1, 0, 5, 5, 6, 3, 3, 2, 1, 1))
 
 
-prueba_2 <- fcm_ga(X = as.matrix(df_bezdeck), k = 2, m = 2, pop_size = 10, max_iter = 10, setps = 5)
+prueba_2 <- fcm_ga(X = as.matrix(df_bezdeck), k = 2, m = 2, pop_size = 10, max_iter = 10000, setps = 200)
 Fclust(df_bezdeck, k = 2)
 ```
 
@@ -41,7 +41,8 @@ df.1$tabla.binaria %>%
 ```
 
 ```{r}
-cluster_1 <- fcm_ga(X = as.matrix(df.1$tabla.binaria %>% dplyr::select(-cluster) ), k = 4, m = 2, pop_size = 100, max_iter = 100, setps = 10)
+df.1 <- read.csv(file = "./data/difuso.csv")
+cluster_1 <- fcm_ga(X = as.matrix(df.1 %>% dplyr::select(-cluster) ), k = 4, m = 2, pop_size = 100, max_iter = 100, setps = 10)
 save(file = "./res/cluster_1.RData", cluster_1)
 ```
 
@@ -52,9 +53,21 @@ df.2$tabla.binaria %>%
     mutate(cluster = as.character(cluster)) %>%
     ggplot(aes(x = V1, y = V2, color = cluster)) +
     geom_point()
+
+write.csv(file = "./data/simetrico.csv", df.2$tabla.binaria)
+
 ```
 
 
 ```{r}
+df.2 <- read.csv(file = "./data/difuso.csv")
+cluster_2 <- fcm_ga(X = as.matrix(df.2 %>% dplyr::select(-cluster) ), k = 4, m = 2, pop_size = 100, max_iter = 1000, setps = 100)
+save(file = "./res/cluster_2.RData", cluster_2)
+````
 
+
+```{r}
+
+cluster_mc <- fcm_ga(X = as.matrix(Mc %>% dplyr::select(-Type)), k = 6, m = 2, pop_size = 100, max_iter = 100, setps = 5)
+save(file = "./res/cluster_mc.RData", cluster_mc)
 ````
