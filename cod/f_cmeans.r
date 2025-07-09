@@ -68,6 +68,46 @@ fcm_gradient_descent <- function(X, k, m = 2, max_iter = 100, tol = 1e-5) {
   return(list(U = U, V = V, fitness = fitness))
 }
 
+#' @title Inicializacion aleatoria de Fuzzy C-Means
+#' @description esta funcion tiene como objetivo inicializar la matriz de pertenencia y los centroides de Fuzzy C-Means
+#' @param X es la matriz de datos
+#' @param k es el numero de clusters
+#' @param m es el parametro de difuminacion
+#' @return una lista con la matriz de pertenencia, la matriz de centroides y el fitness final
+
+inicializacion_aleatoria <- function(X, k, m = 2) {
+  n <- nrow(X)
+  d <- ncol(X)
+  
+  # Inicializar la matriz de pertenencia U y los centroides V
+  U <- matrix(runif(n * k), nrow = n, ncol = k)
+  U <- U / rowSums(U)  # Normalizar filas
+  
+  V <- matrix(0, nrow = k, ncol = d)
+  
+  
+    # Actualizar los centroides
+    for (j in 1:k) {
+      V[j, ] <- colSums((U[, j]^m) * X) / sum(U[, j]^m)
+    }
+    
+    # Actualizar la matriz de pertenencia
+    dist <- as.matrix(dist(rbind(X, V), method = "euclidean"))[1:n, (n + 1):(n + k)]
+    U_new <- 1 /((dist^2 + .Machine$double.eps)^(2/(m - 1)))
+    U_new <- U_new / rowSums(U_new)
+    
+    # Calcular el cambio en la matriz de pertenencia
+    change <- max(abs(U - U_new))
+    
+    # Actualizar U
+    U <- U_new
+    
+  
+  fitness <- fitness_fcm(U, V, X, m)
+  
+  return(list(U = U, V = V, fitness = fitness))
+}
+
 
 #' @titlle cruzamiento de la poblacion
 #' @description esta funcion tiene como objetivo cruzar la poblacion de soluciones
@@ -171,11 +211,14 @@ fcm_ga <- function(X, k, m = 2, pop_size = 50, max_iter = 100, tol = 1e-5, setps
 
   # Inicializar la poblacion
   population <- vector("list", pop_size)
-  for (i in 1:pop_size) {
-    population[[i]] <- fcm_gradient_descent(X, k, m, max_iter, tol)
+  population[[1]] <- fcm_gradient_descent(X, k, m, max_iter, tol)
+  for (i in 2:pop_size) {
+    population[[i]] <- inicializacion_aleatoria(X, k, m)
   }
+  iter <- 0
   for(i in 1:max_iter){
-    
+    cat(paste("Iteración:", i, "de", max_iter, "\n"))
+    iter <- iter + 1
     # Evaluar la poblacion
     fitness_values <- sapply(population, function(sol) sol$fitness)
     
@@ -192,6 +235,7 @@ fcm_ga <- function(X, k, m = 2, pop_size = 50, max_iter = 100, tol = 1e-5, setps
     
     # Actualizar la mejor solucion
     best_solution <- best_population[[1]]
+    if(i == 1){best_solution_descenso <- best_solution}
     
     # Calcular las probabilidades de cruce
     probabilities <- fitness_values / sum(fitness_values)
@@ -201,5 +245,5 @@ fcm_ga <- function(X, k, m = 2, pop_size = 50, max_iter = 100, tol = 1e-5, setps
     #population <- mutacion_population(X, population, k, m, best_population)
   }
   
-  return(best_solution)
+  return(list(best_solution = best_solution, best_solution_descenso = best_solution_descenso, iter = iter))
 }
