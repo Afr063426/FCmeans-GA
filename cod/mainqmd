@@ -1,0 +1,29 @@
+---
+title: "Untitled"
+format: html
+---
+
+```{r}
+library(tidyverse)
+source("./cod/f_cmeans.r")
+```
+
+
+
+# Prueba Iris
+```{r}
+#Se procede a probar el algoritmo 
+iris_numerica <- iris[,1:4]
+
+prueba <- fcm_ga(X = as.matrix(iris_numerica), k = 3, m = 2, pop_size = 10, max_iter = 10, setps = 5)
+
+```
+
+# Prueba tabla Bezdeck
+```{r}
+df_bezdeck <- data.frame(x = c(0, 0, 1, 2, 3, 2, 2, 1, 5, 6, 7, 5, 7, 6, 6, 8), y = c(4, 3, 5, 4, 3, 2, 1, 0, 5, 5, 6, 3, 3, 2, 1, 1))
+
+
+prueba_2 <- fcm_ga(X = as.matrix(df_bezdeck), k = 2, m = 2, pop_size = 10, max_iter = 10, setps = 5)
+
+```
