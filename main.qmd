@@ -14,11 +14,14 @@ library(fclust)
 
 # Prueba Iris
 ```{r}
+
 #Se procede a probar el algoritmo 
 iris_numerica <- iris[,1:4]
 
-prueba <- fcm_ga(X = as.matrix(iris_numerica), k = 3, m = 2, pop_size = 10, max_iter = 20, setps = 10)
-
+prueba <- fcm_ga(X = as.matrix(iris_numerica), k = 3, m = 2, pop_size = 100, max_iter = 1e3, setps = 10e3, tol = 0, add_bezdeck = TRUE)
+prueba$best_solution
+prueba2 <- Fclust(iris_numerica, k = 3)
+prueba2$value
 ```
 
 # Prueba tabla Bezdeck
@@ -26,8 +29,8 @@ prueba <- fcm_ga(X = as.matrix(iris_numerica), k = 3, m = 2, pop_size = 10, max_
 df_bezdeck <- data.frame(x = c(0, 0, 1, 2, 3, 2, 2, 1, 5, 6, 7, 5, 7, 6, 6, 8), y = c(4, 3, 5, 4, 3, 2, 1, 0, 5, 5, 6, 3, 3, 2, 1, 1))
 
 
-prueba_2 <- fcm_ga(X = as.matrix(df_bezdeck), k = 2, m = 2, pop_size = 10, max_iter = 10000, setps = 200)
-Fclust(df_bezdeck, k = 2)
+prueba_2 <- fcm_ga(X = as.matrix(df_bezdeck), k = 2, m = 2, pop_size = 100, max_iter = 2e3, setps = 2e3, add_bezdeck = FALSE, distribution = rnorm)
+bezdeck <- Fclust(df_bezdeck, k = 2)
 ```
 
 # Simulación de tabla
@@ -42,7 +45,8 @@ df.1$tabla.binaria %>%
 
 ```{r}
 df.1 <- read.csv(file = "./data/difuso.csv")
-cluster_1 <- fcm_ga(X = as.matrix(df.1 %>% dplyr::select(-cluster) ), k = 4, m = 2, pop_size = 100, max_iter = 100, setps = 10)
+cluster_1 <- fcm_ga(X = as.matrix(df.1 %>% dplyr::select(V1, V2)), k = 4, m = 2, pop_size = 50, max_iter = 2e3, setps = 2e3, add_bezdeck = FALSE, distribution = rnorm)
+bezdeck_c_1 <- Fclust(as.matrix(df.1 %>% dplyr::select(V1, V2)), k = 4)
 save(file = "./res/cluster_1.RData", cluster_1)
 ```
 
@@ -61,13 +65,15 @@ write.csv(file = "./data/simetrico.csv", df.2$tabla.binaria)
 
 ```{r}
 df.2 <- read.csv(file = "./data/difuso.csv")
-cluster_2 <- fcm_ga(X = as.matrix(df.2 %>% dplyr::select(-cluster) ), k = 4, m = 2, pop_size = 100, max_iter = 1000, setps = 100)
+cluster_2 <- fcm_ga(X = as.matrix(df.2 %>% dplyr::select(V1, V2) ), k = 4, m = 2, pop_size = 50, max_iter = 2e3, setps = 2e3, add_bezdeck = FALSE, distribution = rnorm)
 save(file = "./res/cluster_2.RData", cluster_2)
+bezdeck_c_2 <- Fclust(as.matrix(df.2 %>% dplyr::select(-cluster)), k = 4)
 ````
 
 
 ```{r}
 
-cluster_mc <- fcm_ga(X = as.matrix(Mc %>% dplyr::select(-Type)), k = 6, m = 2, pop_size = 100, max_iter = 100, setps = 5)
+cluster_mc <- fcm_ga(X = as.matrix(Mc %>% dplyr::select(-Type)), , k = 6, m = 2, pop_size = 50, max_iter = 2e3, setps = 2e3, add_bezdeck = FALSE, distribution = rnorm)
+bezdeck_mc <- Fclust(Mc %>% dplyr::select(-Type)), k = 4)
 save(file = "./res/cluster_mc.RData", cluster_mc)
 ````
