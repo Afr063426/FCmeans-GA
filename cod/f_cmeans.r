@@ -203,16 +203,18 @@ cruce_population <- function(X, population, probabilities, k, m, best_population
 #' @param m es el parametro de difuminacion
 #' @param pop_size es el tamaño de la poblacion
 #' @param max_iter es el numero maximo de iteraciones
+#' @param steps numero de pasos antes de decidir parar por tol
+#' @param add_bezdeck indica si se quiere annadir la solucion de bezdeck en las soluciones iniciales
 #' @param tol es la tolerancia para la convergencia
 #' @return una lista con la mejor solucion encontrada, la matriz de pertenencia, la matriz de centroides y el fitness final
 
-fcm_ga <- function(X, k, m = 2, pop_size = 50, max_iter = 100, tol = 1e-5, setps = 10) {
+fcm_ga <- function(X, k, m = 2, pop_size = 50, max_iter = 100, tol = 1e-5, setps = 10, add_bezdeck = FALSE) {
   n <- nrow(X)
 
   # Inicializar la poblacion
   population <- vector("list", pop_size)
-  population[[1]] <- fcm_gradient_descent(X, k, m, max_iter, tol)
-  for (i in 2:pop_size) {
+  if(add_bezdeck) population[[1]] <- fcm_gradient_descent(X, k, m, max_iter, tol)
+  for (i in ifelse(add_bezdeck, 2, 1):pop_size) {
     population[[i]] <- inicializacion_aleatoria(X, k, m)
   }
   iter <- 0
