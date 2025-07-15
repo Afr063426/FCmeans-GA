@@ -19,6 +19,24 @@ fitness_fcm <- function(U, V, X, m) {
   return(fitness)
 }
 
+#' @title Mutation Algoritmo Genetico
+#' @description esta funcion tiene como objetivo realizar la fase de mutacion del algoritmo genetico
+#' @param hijo es el hijo a mutar
+#' @param p probabilidad de mutaciòn
+#' @return el hijo mutado
+
+mutar <- function(hijo, p) {
+  # Itera sobre cada bit y aplica mutación si runif < p
+  hijo_mutado <- sapply(hijo, function(bit) {
+    if (runif(1) < p) {
+      return(as.raw(bitwXor(as.integer(bit), 0x01)))  # Cambia 0 a 1 y viceversa
+    } else {
+      return(bit)      # No se muta
+    }
+  })
+  return(hijo_mutado)
+}
+
 
 #' @title Fuzzy C-Means clustering descenso del gradiente 
 #' @description esta funcion tiene como objetivo encontrar una solucion a fuzzy c-means clustering usando descenso del gradiente
@@ -117,7 +135,7 @@ inicializacion_aleatoria <- function(X, k, m = 2) {
 #' @param k es el numero de clusters
 #' @param m es el parametro de difuminacion
 #' @return una lista con la poblacion cruzada
-cruce_population <- function(X, population, probabilities, k, m, best_population) {
+cruce_population <- function(X, population, probabilities, k, m, best_population,mutated=FALSE,pm) {
   pop_size <- length(population)
   new_population <- vector("list", pop_size + 2)
   
@@ -150,6 +168,12 @@ cruce_population <- function(X, population, probabilities, k, m, best_population
         cruce <- sample(c(TRUE, FALSE), size = length(centroP1), replace = TRUE)
         centroHijo1[cruce] <- centroP1[cruce]
         centroHijo1[!cruce] <- centroP2[!cruce]
+        
+        if (mutated == TRUE) {
+          centroHijo1 <- mutar(centroHijo1,pm)
+        }else{
+          centroHijo1 <- centroHijo1
+        }
 
         V_h1[i,] <- packBits(centroHijo1, type = "integer")/1000
 
@@ -157,6 +181,12 @@ cruce_population <- function(X, population, probabilities, k, m, best_population
         
         centroHijo2[cruce] <- centroP2[cruce]
         centroHijo2[!cruce] <- centroP1[!cruce]
+        
+        if (mutated == TRUE) {
+          centroHijo2 <- mutar(centroHijo2,pm)
+        }else{
+          centroHijo2 <- centroHijo1
+        }
 
         V_h2[i,] <- packBits(centroHijo2, type = "integer")/1000
     }
@@ -208,7 +238,7 @@ cruce_population <- function(X, population, probabilities, k, m, best_population
 #' @param tol es la tolerancia para la convergencia
 #' @return una lista con la mejor solucion encontrada, la matriz de pertenencia, la matriz de centroides y el fitness final
 
-fcm_ga <- function(X, k, m = 2, pop_size = 50, max_iter = 100, tol = 1e-5, setps = 10, add_bezdeck = FALSE) {
+fcm_ga <- function(X, k, m = 2, pop_size = 50, max_iter = 100, tol = 1e-5, setps = 10, add_bezdeck = FALSE,mutated=FALSE,pm) {
   n <- nrow(X)
 
   # Inicializar la poblacion
@@ -243,7 +273,7 @@ fcm_ga <- function(X, k, m = 2, pop_size = 50, max_iter = 100, tol = 1e-5, setps
     probabilities <- fitness_values / sum(fitness_values)
     
     # Cruzar la poblacion
-    population <- cruce_population(X, population, probabilities, k, m, best_population)
+    population <- cruce_population(X, population, probabilities, k, m, best_population,mutated,pm)
     #population <- mutacion_population(X, population, k, m, best_population)
   }
   
